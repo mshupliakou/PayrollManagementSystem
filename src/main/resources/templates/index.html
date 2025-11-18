@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ME Workers Platform - Zaloguj się</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="style.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+
 </head>
 <body>
 
 <nav>
     <a href="#" class="logo">
-        <img src="ME.png" alt="ME Logo" class="logo-img">
+        <img th:src="@{/images/ME.png}" alt="ME Logo" class="logo-img">
         <span class="logo-text">ME Workers Platform</span>
     </a>
 </nav>
@@ -20,7 +21,7 @@
     <div class="auth-container">
         <h1>Zaloguj się</h1>
         <form method="post" action="/login">
-            <input type="text" name="username" placeholder="Nazwa użytkownika" required>
+            <input type="text" name="email" placeholder="Email" required>
             <input type="password" name="password" placeholder="Hasło" required>
             <button type="submit">Zaloguj się</button>
         </form>
@@ -35,6 +36,5 @@
     </div>
 </footer>
 
-<script src="script.js"></script>
 </body>
 </html>
