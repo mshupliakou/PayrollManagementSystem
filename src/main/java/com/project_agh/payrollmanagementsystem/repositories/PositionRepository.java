@@ -1,27 +1,23 @@
 package com.project_agh.payrollmanagementsystem.repositories;
 
-
 import com.project_agh.payrollmanagementsystem.entities.Position;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import java.util.List;
 
 /**
- * Repository interface for managing {@link Position} entities.
+ * Repository interface for performing operations on {@link Position} entities.
  * <p>
- * This interface extends Spring Data JPA's {@link JpaRepository}, providing
- * standard CRUD (Create, Read, Update, Delete) operations.
+ * Provides methods to retrieve job positions within the payroll management system.
+ * </p>
  */
-public interface PositionRepository extends JpaRepository<Position, Long> {
+@Repository
+public interface PositionRepository {
 
     /**
-     * Retrieves an Optional container of a Position entity based on its name.
-     * <p>
-     * This method automatically generates the appropriate query to find a Position
-     * where the 'name' field matches the given 'nazwa' parameter.
+     * Retrieves all positions available in the system.
      *
-     * @param nazwa The name (nazwa) of the Position to look for.
-     * @return An {@link Optional} containing the matching Position, or empty if no position is found.
+     * @return a {@link List} containing all {@link Position} entities
      */
-    Optional<Position> findByName(String nazwa);
+    List<Position> findAll();
 }
