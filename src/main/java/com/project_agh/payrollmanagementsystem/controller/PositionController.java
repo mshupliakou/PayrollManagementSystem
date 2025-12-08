@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
@@ -54,6 +55,59 @@ public class PositionController {
             );
         }
 
-        return "redirect:/dashboard";
+        return "redirect:/dashboard?tab=positions";
+    }
+
+    @PostMapping("/delete")
+    public String deletePosition(
+            @ModelAttribute PositionDto positionDto,
+            RedirectAttributes redirectAttributes,
+            HttpServletRequest request) {
+
+        try {
+            positionRepository.deletePosition(
+                    positionDto.getId()
+            );
+
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "Position has been deleted successfully."
+            );
+
+        } catch (Exception e) {
+            System.err.println("Error deleting role: " + e.getMessage());
+            redirectAttributes.addFlashAttribute(
+                    "errorMessage",
+                    "Error: Failed to delete role. Details: " + e.getMessage()
+            );
+        }
+
+
+
+        return "redirect:/dashboard?tab=positions";
+    }
+
+    @PostMapping("/edit")
+    public String editPosition(
+            @RequestParam("id") Long id,
+            @RequestParam("name") String name,
+            @RequestParam("description") String description,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+
+            positionRepository.editPosition(
+                    id, name, description
+            );
+
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Dane stanowiska (ID: " + id + ") zostały zaktualizowane.");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("errorMessage", "Error editing position: " + e.getMessage());
+        }
+
+        return "redirect:/dashboard?tab=positions";
     }
 }
