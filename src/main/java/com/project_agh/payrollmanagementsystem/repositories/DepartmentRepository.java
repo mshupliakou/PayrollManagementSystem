@@ -29,4 +29,9 @@ public interface DepartmentRepository {
      * @param department_desc a brief description of the department
      */
     void createDepartment(String department_name, String department_desc);
+
+
+    void deleteDepartment(Long id);
+
+    void editDepartment(Long id, String name, String description);
 }
