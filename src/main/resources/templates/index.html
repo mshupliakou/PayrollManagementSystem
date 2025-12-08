@@ -20,6 +20,9 @@
 <section class="auth-section">
     <div class="auth-container">
         <h1>Zaloguj się</h1>
+        <div th:if="${param.error}" class="error-message">
+            Błąd logowania! Nieprawidłowy email lub hasło.
+        </div>
         <form method="post" action="/login">
             <input type="text" name="email" placeholder="Email" required>
             <input type="password" name="password" placeholder="Hasło" required>
