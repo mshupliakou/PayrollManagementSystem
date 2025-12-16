@@ -1,0 +1,662 @@
+<!-- MANAGEMENT -->
+
+<div th:fragment="managementFragment" class="management-flex-container">
+    <div id="Management" class="tabcontent" sec:authorize="hasAuthority('ROLE_ADMIN')">
+        <div class="management-content">
+            <h2 id="section-departments">Zarządzanie działami</h2>
+
+            <h3>Dodać nowy dział</h3>
+
+            <button type="button" class="btn" onclick="openModal('createDepartmentModal')">
+
+                Dodaj dział
+
+            </button>
+
+
+
+            <div id="createDepartmentModal" class="modal">
+
+                <div class="modal-content modal-form">
+
+                    <span class="close" onclick="closeModal('createDepartmentModal')">&times;</span>
+
+                    <h4>Dodaj Nowy Dział</h4>
+
+                    <form th:action="@{/admin/departments/create}" method="post" th:object="${newDepartmentForm}">
+
+                        <label>Nazwa:</label>
+
+                        <input type="text" th:field="*{department_name}" required>
+
+                        <label>Opis:</label>
+
+                        <input type="text" th:field="*{department_desc}" >
+
+                        <button type="submit" class="btn">Utwórz</button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+
+
+            <br><br><br>
+
+            <h3>Wszystkie działy</h3>
+
+
+
+            <table id="myDepartmentsTable" class="table-block display" style="width:100%">
+
+                <thead>
+
+                <tr>
+
+                    <th>ID</th>
+
+                    <th>Nazwa Działu</th>
+
+                    <th>Opis</th>
+
+                    <th>Akcje</th>
+
+                </tr>
+
+                </thead>
+
+                <tbody>
+
+                <tr th:each="dept : ${departmentsList}">
+
+                    <td th:text="${dept.id}"></td>
+
+                    <td th:text="${dept.name}"></td> <td th:text="${dept.description}"></td>
+
+                    <td>
+
+                        <button class="btn" type="button" th:onclick="'openModal(\'editDeptModel-' + ${dept.id} + '\')'">Edytuj</button>
+
+                        <div th:id="'editDeptModel-' + ${dept.id}" class="modal">
+
+                            <div class="modal-content modal-form">
+
+                                <span class="close" th:onclick="'closeModal(\'editDeptModel-' + ${dept.id} + '\')'">&times;</span>
+
+                                <h4>Edycja działu:</h4>
+
+                                <form th:action="@{/admin/departments/edit}" method="post">
+
+                                    <input type="hidden" name="id" th:value="${dept.id}" />
+
+                                    <label>Nazwa Działu:</label>
+
+                                    <input type="text" name="name" th:value="${dept.name}" required>
+
+                                    <label>Opis:</label>
+
+                                    <input type="text" name="description" th:value="${dept.description}">
+
+                                    <button type="submit" class="btn">Zatwierdź zmiany</button>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                        <button class="btn-danger" type="button" th:onclick="'openModal(\'deleteDeptModel-' + ${dept.id} + '\')'">Usuń</button>
+
+                        <div th:id="'deleteDeptModel-' + ${dept.id}" class="modal">
+
+                            <div class="modal-content modal-form">
+
+                                <span class="close" th:onclick="'closeModal(\'deleteDeptModel-' + ${dept.id} + '\')'">&times;</span>
+
+                                <h4>Czy na pewno chcesz usunąć dział:</h4>
+
+                                <h4 th:text="${dept.name}" style="font-weight: bold;"></h4>
+
+                                <form th:action="@{/admin/departments/delete}" method="post">
+
+                                    <input type="hidden" name="id" th:value="${dept.id}" />
+
+                                    <button type="submit" class="btn-danger">Usuń</button>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                </tbody>
+
+            </table>
+
+
+
+            <div class="divider"></div>
+
+
+
+            <h2 id="section-positions">Zarządzanie stanowiskami</h2>
+
+            <h3>Dodać nowe stanowisko</h3>
+
+            <button type="button" class="btn" onclick="openModal('createPositionModal')">Dodaj stanowisko</button>
+
+
+
+            <div id="createPositionModal" class="modal">
+
+                <div class="modal-content modal-form">
+
+                    <span class="close" onclick="closeModal('createPositionModal')">&times;</span>
+
+                    <h4>Dodaj Nowe Stanowisko</h4>
+
+                    <form th:action="@{/admin/positions/create}" method="post" th:object="${newPositionForm}">
+
+                        <label>Nazwa:</label>
+
+                        <input type="text" th:field="*{position_name}" required>
+
+                        <label>Opis:</label>
+
+                        <input type="text" th:field="*{position_desc}" >
+
+                        <button type="submit" class="btn">Utwórz</button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+
+
+            <br><br><br>
+
+            <h3>Wszystkie stanowiska</h3>
+
+            <table id="myPositionsTable" class="table-block display" style="width:100%">
+
+                <thead>
+
+                <tr>
+
+                    <th>ID</th><th>Nazwa Stanowiska</th><th>Opis</th><th>Akcje</th>
+
+                </tr>
+
+                </thead>
+
+                <tbody>
+
+                <tr th:each="pos : ${positionsList}">
+
+                    <td th:text="${pos.id}"></td>
+
+                    <td th:text="${pos.name}"></td> <td th:text="${pos.description}"></td>
+
+                    <td>
+
+                        <button class="btn" type="button" th:onclick="'openModal(\'editPosModel-' + ${pos.id} + '\')'">Edytuj</button>
+
+                        <div th:id="'editPosModel-' + ${pos.id}" class="modal">
+
+                            <div class="modal-content modal-form">
+
+                                <span class="close" th:onclick="'closeModal(\'editPosModel-' + ${pos.id} + '\')'">&times;</span>
+
+                                <h4>Edycja stanowiska:</h4>
+
+                                <form th:action="@{/admin/positions/edit}" method="post">
+
+                                    <input type="hidden" name="id" th:value="${pos.id}" />
+
+                                    <label>Nazwa Stanowiska:</label>
+
+                                    <input type="text" name="name" th:value="${pos.name}" required>
+
+                                    <label>Opis:</label>
+
+                                    <input type="text" name="description" th:value="${pos.description}">
+
+                                    <button type="submit" class="btn">Zatwierdź zmiany</button>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                        <button class="btn-danger" type="button" th:onclick="'openModal(\'deletePosModel-' + ${pos.id} + '\')'">Usuń</button>
+
+                        <div th:id="'deletePosModel-' + ${pos.id}" class="modal">
+
+                            <div class="modal-content modal-form">
+
+                                <span class="close" th:onclick="'closeModal(\'deletePosModel-' + ${pos.id} + '\')'">&times;</span>
+
+                                <h4>Czy na pewno chcesz usunąć:</h4>
+
+                                <h4 th:text="${pos.name}" style="font-weight: bold;"></h4>
+
+                                <form th:action="@{/admin/positions/delete}" method="post">
+
+                                    <input type="hidden" name="id" th:value="${pos.id}" />
+
+                                    <button type="submit" class="btn-danger">Usuń</button>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                </tbody>
+
+            </table>
+
+
+
+            <div class="divider"></div>
+
+
+
+            <h2 id="section-roles">Zarządzanie rolami</h2>
+
+            <h3>Dodać nową rolę</h3>
+
+            <button type="button" id="tab-roles-btn" class="btn" onclick="openModal('createRoleModal')">Dodaj rolę</button>
+
+
+
+            <div id="createRoleModal" class="modal">
+
+                <div class="modal-content modal-form">
+
+                    <span class="close" onclick="closeModal('createRoleModal')">&times;</span>
+
+                    <h4>Dodaj Nową Rolę</h4>
+
+                    <form th:action="@{/admin/roles/create}" method="post" th:object="${newRoleForm}">
+
+                        <label>Nazwa:</label>
+
+                        <input type="text" th:field="*{name}" required>
+
+                        <button type="submit" class="btn">Utwórz</button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+
+
+            <br><br><br>
+
+            <h3>Wszystkie role</h3>
+
+            <table id="myRolesTable" class="table-block display" style="width:100%">
+
+                <thead>
+
+                <tr>
+
+                    <th>ID</th><th>Nazwa Roli</th><th>Akcje</th>
+
+                </tr>
+
+                </thead>
+
+                <tbody>
+
+                <tr th:each="role : ${rolesList}">
+
+                    <td th:text="${role.id}"></td>
+
+                    <td th:text="${role.name}"></td>
+
+                    <td>
+
+                        <button class="btn" type="button" th:onclick="'openModal(\'editRoleModel-' + ${role.id} + '\')'">Edytuj</button>
+
+                        <div th:id="'editRoleModel-' + ${role.id}" class="modal">
+
+                            <div class="modal-content modal-form">
+
+                                <span class="close" th:onclick="'closeModal(\'editRoleModel-' + ${role.id} + '\')'">&times;</span>
+
+                                <h4>Edycja roli:</h4>
+
+                                <form th:action="@{/admin/roles/edit}" method="post">
+
+                                    <input type="hidden" name="id" th:value="${role.id}" />
+
+                                    <label>Nazwa Roli:</label>
+
+                                    <input type="text" name="name" th:value="${role.name}" required>
+
+                                    <button type="submit" class="btn">Zatwierdź zmiany</button>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                        <button class="btn-danger" type="button" th:onclick="'openModal(\'deleteRoleModel-' + ${role.id} + '\')'">Usuń</button>
+
+                        <div th:id="'deleteRoleModel-' + ${role.id}" class="modal">
+
+                            <div class="modal-content modal-form">
+
+                                <span class="close" th:onclick="'closeModal(\'deleteRoleModel-' + ${role.id} + '\')'">&times;</span>
+
+                                <h4>Czy на pewno chcesz usunąć:</h4>
+
+                                <h4 th:text="${role.name}" style="font-weight: bold;"></h4>
+
+                                <form th:action="@{/admin/roles/delete}" method="post">
+
+                                    <input type="hidden" name="id" th:value="${role.id}" />
+
+                                    <button type="submit" class="btn-danger">Usuń</button>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                </tbody>
+
+            </table>
+
+
+
+            <div class="divider"></div>
+
+
+
+            <h2 id="section-users">Zarządzanie pracownikami</h2>
+
+            <h3>Dodać nowego pracownika</h3>
+
+            <button type="button" class="btn" onclick="openModal('createUserModal')">Dodaj użytkownika</button>
+
+
+
+            <div id="createUserModal" class="modal">
+
+                <div class="modal-content modal-form">
+
+                    <span class="close" onclick="closeModal('createUserModal')">&times;</span>
+
+                    <h4>Dodaj Nowego Użytkownika</h4>
+
+                    <form th:action="@{/admin/users/create}" method="post" th:object="${newUserForm}">
+
+                        <label>Imię:</label> <input type="text" th:field="*{name}" required>
+
+                        <label>Nazwisko:</label> <input type="text" th:field="*{lastname}" required>
+
+                        <label>Email:</label> <input type="email" th:field="*{email}" required>
+
+                        <label>Hasło:</label> <input type="password" th:field="*{password}" required>
+
+                        <label>Data zatrudnienia:</label> <input type="date" th:field="*{data_zatrudnienia}" required>
+
+                        <label>Wynagrodzenie (PLN/g):</label> <input type="number" step="0.01" min="0" th:field="*{wynagrodzenie_pln_g}" required>
+
+
+
+                        <label>Stanowisko:</label>
+
+                        <select th:field="*{id_stanowisko}" class="form-control" required>
+
+                            <option value="" disabled selected>Wybierz stanowisko...</option>
+
+                            <option th:each="pos : ${positionsList}" th:value="${pos.id}" th:text="${pos.name}"></option>
+
+                        </select>
+
+                        <label>Rola:</label>
+
+                        <select th:field="*{id_rola}" class="form-control" required>
+
+                            <option value="" disabled selected>Wybierz rolę...</option>
+
+                            <option th:each="role : ${rolesList}" th:value="${role.id}" th:text="${role.name}"></option>
+
+                        </select>
+
+                        <label>Dział:</label>
+
+                        <select th:field="*{id_dzial}" class="form-control" required>
+
+                            <option value="" disabled selected>Wybierz dział...</option>
+
+                            <option th:each="dept : ${departmentsList}" th:value="${dept.id}" th:text="${dept.name}"></option>
+
+                        </select>
+
+                        <div class="checkbox-row">
+
+                            <label>Aktywny:</label> <input type="checkbox" th:field="*{aktywny}">
+
+                        </div>
+
+                        <button type="submit" class="btn">Utwórz</button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+
+
+            <br><br><br>
+
+            <h3>Wszyscy użytkownicy</h3>
+
+            <div class="filter-box" style="margin-bottom: 15px;">
+
+                <label for="statusFilter">Filtruj po statusie:</label>
+
+                <select id="statusFilter" class="pretty-select" style="display: inline-block; width: 200px;">
+
+                    <option value="">Wszyscy</option>
+
+                    <option value="Aktywny">Aktywny</option>
+
+                    <option value="Zwolniony">Zwolniony</option>
+
+                </select>
+
+            </div>
+
+
+
+            <table id="myUsersTable" class="table-block display" style="width:100%">
+
+                <thead>
+
+                <tr>
+
+                    <th>ID</th><th>Imię</th><th>Nazwisko</th><th>Email</th><th>Stanowisko</th><th>Rola</th><th>Status</th><th>Akcje</th>
+
+                </tr>
+
+                </thead>
+
+                <tbody>
+
+                <tr th:each="user : ${allUsers}">
+
+                    <td th:text="${user.id}"></td>
+
+                    <td th:text="${user.name}"></td>
+
+                    <td th:text="${user.lastname}"></td>
+
+                    <td th:text="${user.email}"></td>
+
+                    <td th:text="${user.position.name}"></td>
+
+                    <td th:text="${user.role.name}"></td>
+
+                    <td th:text="${user.active ? 'Aktywny' : 'Zwolniony'}"></td>
+
+                    <td>
+
+                        <button class="btn" type="button" th:onclick="'openModal(\'editUserModel-' + ${user.id} + '\')'">Edytuj</button>
+
+                        <div th:id="'editUserModel-' + ${user.id}" class="modal">
+
+                            <div class="modal-content modal-form">
+
+                                <span class="close" th:onclick="'closeModal(\'editUserModel-' + ${user.id} + '\')'">&times;</span>
+
+                                <h4>Edycja uzytkownika:</h4>
+
+                                <form th:action="@{/admin/users/edit}" method="post">
+
+                                    <input type="hidden" name="edit_id" th:value="${user.id}" />
+
+                                    <label>Imię:</label> <input type="text" name="edit_name" th:value="${user.name}" required>
+
+                                    <label>Nazwisko:</label> <input type="text" name="edit_lastname" th:value="${user.lastname}" required>
+
+                                    <label>Email:</label> <input type="email" name="edit_email" th:value="${user.email}" required>
+
+                                    <label>Nowe Hasło:</label> <input type="password" name="edit_password">
+
+                                    <label>Data zatrudnienia:</label> <input type="date" name="edit_data_zatrudnienia" th:value="${user.hireDate}" required>
+
+                                    <label>Wynagrodzenie:</label> <input type="number" step="0.01" name="edit_wynagrodzenie_pln_g" th:value="${user.salary_pln_h}" required>
+
+                                    <label>Stanowisko:</label>
+
+                                    <select name="edit_id_stanowisko" class="form-control" required>
+
+                                        <option th:each="pos : ${positionsList}" th:value="${pos.id}" th:text="${pos.name}" th:selected="${user.position != null and user.position.id == pos.id}"></option>
+
+                                    </select>
+
+                                    <label>Rola:</label>
+
+                                    <select name="edit_id_rola" class="form-control" required>
+
+                                        <option th:each="role : ${rolesList}" th:value="${role.id}" th:text="${role.name}" th:selected="${user.role != null and user.role.id == role.id}"></option>
+
+                                    </select>
+
+                                    <label>Dział:</label>
+
+                                    <select name="edit_id_dzial" class="form-control" required>
+
+                                        <option th:each="dept : ${departmentsList}" th:value="${dept.id}" th:text="${dept.name}" th:selected="${user.department != null and user.department.id == dept.id}"></option>
+
+                                    </select>
+
+                                    <div class="checkbox-row">
+
+                                        <label>Aktywny:</label> <input type="checkbox" name="edit_aktywny" th:checked="${user.active}">
+
+                                    </div>
+
+                                    <label>Data zwolnienia:</label> <input type="date" name="edit_data_zwolnienia" th:value="${user.retirementDate}">
+
+                                    <button type="submit" class="btn">Zatwierdź zmiany</button>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                        <button class="btn-danger" type="button" th:onclick="'openModal(\'deleteUserModel-' + ${user.id} + '\')'">Usuń</button>
+
+                        <div th:id="'deleteUserModel-' + ${user.id}" class="modal">
+
+                            <div class="modal-content modal-form">
+
+                                <span class="close" th:onclick="'closeModal(\'deleteUserModel-' + ${user.id} + '\')'">&times;</span>
+
+                                <h4>Czy jesteś pewny?</h4>
+
+                                <form th:action="@{/admin/users/delete}" method="post">
+
+                                    <input type="hidden" name="edit_id" th:value="${user.id}" />
+
+                                    <button type="submit" class="btn-danger">Usuń</button>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+
+
+
+
+
+
+
+
+    </div>
+
+
+
+    <div id="managementSidebar" class="management-sidebar">
+
+        <h4>Nawigacja</h4>
+
+        <ul>
+
+            <li><a href="#section-departments">Działy</a></li>
+
+            <li><a href="#section-positions">Stanowiska</a></li>
+
+            <li><a href="#section-roles">Role</a></li>
+
+            <li><a href="#section-users">Pracownicy</a></li>
+
+        </ul>
+
+    </div>
+
+</div>
+
