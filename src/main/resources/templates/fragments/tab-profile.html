@@ -1,0 +1,102 @@
+<!-- PROFILE -->
+<div id="My_profile" class="tabcontent" style="display: block;" th:fragment="profileFragment">
+    <div class="content-wrapper">
+        <p>Profil użytkownika</p>
+        <h3 th:text="${user.name} + ' ' + ${user.lastname}"></h3>
+
+        <p>Informacje o użytkowniku</p>
+        <h3 th:text="${user.name} + ' ' + ${user.lastname}"></h3>
+
+        <p th:text="'Email: ' + ${user.email}"></p>
+        <p th:text="'Nr telefonu: ' + ${user.phone_number}"></p>
+
+        <form th:action="@{/change_phone_number}" method="post" class="button">
+            <button type="button" class="btn" onclick="openModal('changePhoneNumberModal')" >Zmienić nr</button>
+        </form>
+
+        <div id="changePhoneNumberModal" class="modal">
+            <div class="modal-content modal-form">
+                <span class="close" onclick="closeModal('changePhoneNumberModal')">&times;</span>
+                <h4>Zmiana nr telefonu</h4>
+
+                <form th:action="@{/change_phone_number}" method="post" th:object="${phoneNumberChangeForm}">
+
+                    <label>Nr telefonu:</label>
+                    <input type="text" th:field="*{phoneNumber}" required>
+
+                    <button type="submit" class="btn">Zatwierdź</button>
+                </form>
+            </div>
+        </div>
+
+
+
+        <p>
+            Nr konta bankowego: <span th:text="${user.account}"></span>
+        </p>
+        <p th:if="${user.account == null}" style="color: red; font-weight: bold;">
+            Nr konta bankowego nie został podany – proszę uzupełnić.
+        </p>
+
+        <form th:action="@{/change_bank_account}" method="post" class="button">
+            <button type="button" class="btn" onclick="openModal('changeBankAccountModal')" >Zmienić nr</button>
+        </form>
+
+        <div id="changeBankAccountModal" class="modal">
+            <div class="modal-content modal-form">
+                <span class="close" onclick="closeModal('changeBankAccountModal')">&times;</span>
+                <h4>Zmiana nr konta</h4>
+
+                <form th:action="@{/change_bank_account}" method="post" th:object="${AccountChangeForm}">
+
+                    <label>Nr konta:</label>
+                    <input type="text" th:field="*{account}" required>
+
+                    <button type="submit" class="btn">Zatwierdź</button>
+                </form>
+            </div>
+        </div>
+
+        <p th:text="'Stanowisko: ' + ${user.getPosition().getName()}"></p>
+        <p th:text="'Dzial: ' + ${user.getDepartment().getName()}"></p>
+        <p th:text="'Rola: ' + ${user.getRole().getName()}"></p>
+
+        <p>Hasło</p>
+
+        <form th:action="@{/change_password}" method="post" class="button">
+            <button type="button" class="btn" onclick="openModal('changePasswordModal')">Zmienić hasło</button>
+        </form>
+
+        <div id="changePasswordModal" class="modal">
+            <div class="modal-content modal-form">
+                <span class="close" onclick="closeModal('changePasswordModal')">&times;</span>
+                <h4>Zmiana hasła</h4>
+
+                <form th:action="@{/change_password}" method="post" th:object="${passwordChangeForm}">
+
+                    <label>Hasło teraźniejsze:</label>
+                    <input type="password" th:field="*{currentPassword}" required>
+
+                    <label>Hasło nowe:</label>
+                    <input type="password" th:field="*{newPassword}" required>
+
+                    <label>Potwierdzenie nowego hasła:</label>
+                    <input type="password" th:field="*{confirmNewPassword}" required>
+
+                    <button type="submit" class="btn">Zmień hasło</button>
+                </form>
+            </div>
+        </div>
+
+
+
+        <p th:text="'Data zatrudnienia: ' + ${user.hireDate}"></p>
+        <p th:if="${user.isActive()}" style="color: green;">
+            Status: Aktywny
+        </p>
+
+        <p th:unless="${user.isActive()}" style="color: red;">
+            Status: Nieaktywny
+        </p>
+    </div>
+</div>
