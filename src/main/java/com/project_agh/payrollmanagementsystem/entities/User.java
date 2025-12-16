@@ -5,6 +5,8 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents an employee (User) in the Payroll Management System.
@@ -112,5 +114,12 @@ public class User {
      */
     @Column(name = "aktywny", nullable = false)
     private boolean active;
+
+    @Column(name = "konto_bankowe")
+    private String account;
+
+    @Transient // Ważne dla Hibernate (żeby nie krzyczał), chociaż używasz JDBC
+    private List<WorkHours> workHours = new ArrayList<>();
+
 
 }
