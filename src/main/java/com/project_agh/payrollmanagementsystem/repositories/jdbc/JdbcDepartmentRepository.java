@@ -1,5 +1,4 @@
 package com.project_agh.payrollmanagementsystem.repositories.jdbc;
-
 import com.project_agh.payrollmanagementsystem.entities.Department;
 import com.project_agh.payrollmanagementsystem.repositories.DepartmentRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -23,6 +22,17 @@ public class JdbcDepartmentRepository implements DepartmentRepository {
 
     private static final String CREATE_NEW_DEPARTMENT =
             "INSERT INTO dzial (nazwa, opis) VALUES (?, ?)";
+
+    private static final String DELETE_DEPARTMENT =
+            "DELETE FROM  dzial \n" +
+                    "WHERE id_dzial = ?\n";
+
+    private static final String EDIT_DEPARTMENT=
+            "UPDATE dzial SET " +
+                    "nazwa = ?, " +
+                    "opis = ? " +
+
+                    "WHERE id_dzial = ?";
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -65,6 +75,30 @@ public class JdbcDepartmentRepository implements DepartmentRepository {
 
         if (rowsAffected != 1) {
             // Optional: handle the error if the row was not inserted
+        }
+    }
+
+    @Override
+    public void deleteDepartment(Long id) {
+        int rowsAffected = jdbcTemplate.update(
+                DELETE_DEPARTMENT,
+                id
+        );
+
+        if (rowsAffected != 1) {
+        }
+    }
+
+    @Override
+    public void editDepartment(Long id, String name, String description) {
+        int rowsAffected = jdbcTemplate.update(
+                EDIT_DEPARTMENT,
+                name,
+                description,
+                id
+        );
+
+        if (rowsAffected != 1) {
         }
     }
 }
