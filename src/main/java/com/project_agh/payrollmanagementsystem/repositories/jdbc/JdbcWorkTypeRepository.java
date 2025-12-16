@@ -24,7 +24,7 @@ public class JdbcWorkTypeRepository implements WorkTypeRepository {
             "UPDATE typ_pracy SET " +
                     "nazwa = ?, " +
                     "opis = ?" +
-                    "WHERE id_typ_pracy = ?";
+                    " WHERE id_typ_pracy = ?";
 
 
     private final JdbcTemplate jdbcTemplate;
