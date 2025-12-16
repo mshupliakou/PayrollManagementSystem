@@ -1,0 +1,188 @@
+<!-- WORK HOURS -->
+<div id="Work_hours" class="tabcontent" th:fragment="workFragment">
+    <div class="content-wrapper">
+        <h2>Ewidencja Czasu Pracy</h2>
+
+        <button type="button" class="btn" onclick="openModal('addWorkHoursModal')">
+            Dodaj godziny
+        </button>
+
+        <div id="addWorkHoursModal" class="modal">
+            <div class="modal-content modal-form">
+                <span class="close" onclick="closeModal('addWorkHoursModal')">&times;</span>
+                <h4>Rejestracja czasu pracy</h4>
+
+                <form th:action="@{/work_hours/create}" method="post" th:object="${newWorkHoursForm}">
+
+                    <label>Data:</label>
+                    <input type="date" th:field="*{date}" required>
+
+                    <div style="display: flex; gap: 10px;">
+                        <div style="flex: 1;">
+                            <label>Rozpoczęcie:</label>
+                            <input type="time" th:field="*{startTime}" required>
+                        </div>
+                        <div style="flex: 1;">
+                            <label>Zakończenie:</label>
+                            <input type="time" th:field="*{endTime}" required>
+                        </div>
+                    </div>
+
+                    <label>Projekt:</label>
+                    <select th:field="*{projectId}" class="form-control">
+                        <option value="" selected>-- Brak projektu / Ogólne --</option>
+                        <option th:each="proj : ${projectsList}"
+                                th:value="${proj.id}"
+                                th:text="${proj.name}"></option>
+                    </select>
+
+                    <label>Typ czynności:</label>
+                    <select th:field="*{workTypeId}" class="form-control" required>
+                        <option value="" disabled selected>Wybierz typ...</option>
+                        <option th:each="type : ${workTypesList}"
+                                th:value="${type.id}"
+                                th:text="${type.name}"></option>
+                    </select>
+
+                    <label>Komentarz (opcjonalnie):</label>
+                    <textarea th:field="*{comment}" rows="3" style="width: 100%;"></textarea>
+
+                    <button type="submit" class="btn" style="margin-top: 15px;">Zatwierdź</button>
+                </form>
+            </div>
+        </div>
+
+        <br><br>
+        <div class="divider"></div>
+
+        <h3>Moja historia pracy</h3>
+
+        <table id="myWorkHoursTable" class="table-block display" style="width:100%">
+            <thead>
+            <tr>
+                <th>Grupa</th> <th>Data</th>
+                <th>Dzień</th>
+                <th>Godziny</th>
+                <th>Czas pracy</th>
+                <th>Projekt</th>
+                <th>Typ</th>
+                <th>Komentarz</th>
+                <th>Status</th>
+                <th>Akcje</th> </tr>
+            </thead>
+            <tbody>
+            <tr th:each="record : ${myWorkHoursList}">
+                <td th:text="${record.weekRange}"></td>
+                <td th:text="${record.date}"></td>
+                <td style="text-transform: capitalize;" th:text="${record.dayOfWeek}"></td>
+                <td th:text="${record.startTime} + ' - ' + ${record.endTime}"></td>
+                <td th:text="${record.workedTime}" style="font-weight: bold;"></td>
+                <td th:text="${record.project != null ? record.project.name : '-'}"></td>
+                <td th:text="${record.workType.name}"></td>
+                <td th:text="${record.comment}"></td>
+                <td>
+                    <span th:if="${record.approved}" style="color: green;">Zatwierdzone</span>
+                    <span th:unless="${record.approved}" style="color: orange;">Oczekuje</span>
+                </td>
+
+                <td>
+                    <button class="btn" type="button" th:onclick="'openModal(\'editWorkHourModal-' + ${record.id} + '\')'">Edytuj</button>
+
+                    <div th:id="'editWorkHourModal-' + ${record.id}" class="modal">
+                        <div class="modal-content modal-form">
+                            <span class="close" th:onclick="'closeModal(\'editWorkHourModal-' + ${record.id} + '\')'">&times;</span>
+                            <h4>Edycja czasu pracy</h4>
+
+                            <form th:action="@{/work_hours/edit}" method="post">
+                                <input type="hidden" name="id" th:value="${record.id}" />
+
+                                <label>Data:</label>
+                                <input type="date" name="date" th:value="${record.date}" required>
+
+                                <div style="display: flex; gap: 10px;">
+                                    <div style="flex: 1;">
+                                        <label>Rozpoczęcie:</label>
+                                        <input type="time" name="startTime" th:value="${record.startTime}" required>
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <label>Zakończenie:</label>
+                                        <input type="time" name="endTime" th:value="${record.endTime}" required>
+                                    </div>
+                                </div>
+
+                                <label>Projekt:</label>
+                                <select name="projectId" class="form-control">
+                                    <option value="">-- Brak / Ogólne --</option>
+                                    <option th:each="proj : ${projectsList}"
+                                            th:if="${proj != null}"
+                                            th:value="${proj.id}"
+                                            th:text="${proj.name}"
+                                            th:selected="${record.project != null && record.project.id == proj.id}"></option>
+                                </select>
+
+                                <label>Typ czynności:</label>
+                                <select name="workTypeId" class="form-control" required>
+                                    <option th:each="type : ${workTypesList}"
+                                            th:if="${type != null}"
+                                            th:value="${type.id}"
+                                            th:text="${type.name}"
+                                            th:selected="${record.workType != null && record.workType.id == type.id}"></option>
+                                </select>
+
+                                <label>Komentarz:</label>
+                                <textarea name="comment" rows="3" style="width: 100%;" th:text="${record.comment}"></textarea>
+
+                                <button type="submit" class="btn" style="margin-top: 15px;">Zatwierdź zmiany</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <button class="btn-danger" type="button" th:onclick="'openModal(\'deleteWorkHourModal-' + ${record.id} + '\')'">Usuń</button>
+
+                    <div th:id="'deleteWorkHourModal-' + ${record.id}" class="modal">
+                        <div class="modal-content modal-form">
+                            <span class="close" th:onclick="'closeModal(\'deleteWorkHourModal-' + ${record.id} + '\')'">&times;</span>
+                            <h4>Czy na pewno usunąć wpis z dnia:</h4>
+                            <h4 th:text="${record.date}"></h4>
+                            <form th:action="@{/work_hours/delete}" method="post">
+                                <input type="hidden" name="id" th:value="${record.id}" />
+                                <button type="submit" class="btn-danger">Usuń</button>
+                            </form>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <br><br><br>
+        <div class="divider"></div>
+        <h3>Statystyki</h3>
+
+        <table id="statsTable" class="table-block display" style="width:100%">
+            <thead>
+            <tr>
+                <th>Rodzaj statystyki</th>
+                <th>Wartość</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Średnia godzin pracy (dzień)</td>
+                <td th:text="${avarage_per_day}"></td>
+            </tr>
+            <tr>
+                <td>Suma godzin pracy (tydzień)</td>
+                <td th:text="${sum_per_week}"></td>
+            </tr>
+            <tr>
+                <td>Średnia godzin pracy (tydzień - ogółem)</td>
+                <td th:text="${avareage_per_week}"></td>
+            </tr>
+            <tr>
+                <td>Suma godzin pracy (całkowita)</td>
+                <td th:text="${sum_hours}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
