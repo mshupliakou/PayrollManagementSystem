@@ -1,0 +1,277 @@
+<div th:fragment="scriptsFragment">
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/rowgroup/1.4.1/css/rowGroup.dataTables.min.css">
+    <script src="https://cdn.datatables.net/rowgroup/1.4.1/js/dataTables.rowGroup.min.js"></script>
+
+    <script src="/js/dashboard.js"></script>
+
+    <style>
+        .group-pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            gap: 10px;
+        }
+        .group-btn {
+            padding: 5px 15px;
+            cursor: pointer;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        .group-btn.secondary {
+            background-color: #6c757d;
+        }
+        .group-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .group-info {
+            font-weight: bold;
+            font-size: 1.1em;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        div.dataTables_wrapper {
+            width: 100%;
+        }
+
+        .dt-buttons {
+            margin-bottom: 15px;
+        }
+    </style>
+
+    <script th:inline="none">
+        $(document).ready(function() {
+
+
+            var commonSettings = {
+                "dom": 'Bfrtip',
+                "buttons": [
+                    { extend: 'excelHtml5', className: 'btn', exportOptions: { columns: ':not(:last-child)' } },
+                    { extend: 'print', className: 'btn', exportOptions: { columns: ':not(:last-child)' } }
+                ],
+                "language": {
+                    "processing": "Przetwarzanie...",
+                    "search": "Szukaj:",
+                    "lengthMenu": "Pokaż _MENU_ pozycji",
+                    "info": "Pozycje od _START_ do _END_ z _TOTAL_ łącznie",
+                    "infoEmpty": "Brak danych",
+                    "infoFiltered": "(filtrowanie z _MAX_)",
+                    "loadingRecords": "Wczytywanie...",
+                    "zeroRecords": "Brak danych",
+                    "paginate": { "first": "<<", "previous": "<", "next": ">", "last": ">>" },
+                    "emptyTable": "Brak danych"
+                },
+                "columnDefs": [ { "orderable": false, "targets": -1 } ]
+            };
+
+            function getSettings(placeholder) {
+                var s = $.extend(true, {}, commonSettings);
+                s.language.search = placeholder;
+                return s;
+            }
+
+            var workHoursSettings = getSettings("Szukaj w historii:");
+            workHoursSettings.paging = false;
+            workHoursSettings.dom = 'Bfrt';
+            workHoursSettings.columnDefs = [
+                { "visible": false, "targets": 0 }, // Ukryj kolumnę Grupa (Week)
+                { "orderable": false, "targets": -1 }
+            ];
+            workHoursSettings.order = [[1, 'desc']]; // Sortuj po dacie
+            workHoursSettings.rowGroup = {
+                dataSrc: 0,
+                startRender: function (rows, group) {
+                    return $('<tr/>').append('<td colspan="9" style="background-color: #e0e0e0; font-weight: bold;">' +
+                        'Tydzień: ' + group + ' (' + rows.count() + ' wpisów)' +
+                        '</td>');
+                }
+            };
+
+            var table = $('#myWorkHoursTable').DataTable(workHoursSettings);
+
+            var allGroups = table.column(0, {search:'applied'}).data().unique().toArray();
+            if(allGroups.length > 0) {
+                var currentGroupIndex = 0;
+                var isShowAll = false;
+
+                var navHtml = `
+                    <div class="group-pagination">
+                        <button id="btn-prev-group" class="group-btn">&laquo; Starsze</button>
+                        <span id="group-display" class="group-info"></span>
+                        <button id="btn-next-group" class="group-btn">Nowsze &raquo;</button>
+                        <button id="btn-toggle-all" class="group-btn secondary">Pokaż wszystko</button>
+                    </div>
+                `;
+                $('#myWorkHoursTable_wrapper').prepend(navHtml);
+
+                $.fn.dataTable.ext.search.push(
+                    function(settings, data, dataIndex) {
+                        if (settings.nTable.id !== 'myWorkHoursTable') return true;
+                        if (isShowAll) return true;
+                        return data[0] === allGroups[currentGroupIndex];
+                    }
+                );
+
+                function updateGroupView() {
+                    if (isShowAll) {
+                        $('#group-display').text("Wszystkie tygodnie");
+                        $('#btn-prev-group').prop('disabled', true);
+                        $('#btn-next-group').prop('disabled', true);
+                        $('#btn-toggle-all').text("Pokaż jeden tydzień");
+                    } else {
+                        $('#group-display').text(allGroups[currentGroupIndex]);
+                        $('#btn-prev-group').prop('disabled', currentGroupIndex >= allGroups.length - 1);
+                        $('#btn-next-group').prop('disabled', currentGroupIndex <= 0);
+                        $('#btn-toggle-all').text("Pokaż wszystko");
+                    }
+                    table.draw();
+                }
+
+                $('#btn-toggle-all').click(function() { isShowAll = !isShowAll; updateGroupView(); });
+                $('#btn-prev-group').click(function() { if (!isShowAll && currentGroupIndex < allGroups.length - 1) { currentGroupIndex++; updateGroupView(); } });
+                $('#btn-next-group').click(function() { if (!isShowAll && currentGroupIndex > 0) { currentGroupIndex--; updateGroupView(); } });
+
+                updateGroupView();
+            }
+
+
+            var allWorkHoursSettings = getSettings("Szukaj w historii:");
+            allWorkHoursSettings.paging = false;
+            allWorkHoursSettings.dom = 'Bfrt';
+            allWorkHoursSettings.columnDefs = [
+                { "visible": false, "targets": 0 },
+                { "orderable": false, "targets": -1 }
+            ];
+
+            allWorkHoursSettings.order = [[3, 'desc']];
+
+            allWorkHoursSettings.rowGroup = {
+                dataSrc: 0,
+                startRender: function (rows, group) {
+                    return $('<tr/>').append('<td colspan="11" style="background-color: #e0e0e0; font-weight: bold;">' +
+                        'Tydzień: ' + group + ' (' + rows.count() + ' wpisów)' +
+                        '</td>');
+                }
+            };
+
+            var tableAll = $('#WorkHoursTable').DataTable(allWorkHoursSettings);
+
+            var allGroupsAll = tableAll.column(0, {search:'applied'}).data().unique().toArray();
+
+            if(allGroupsAll.length > 0) {
+                var currentGroupIndexAll = 0;
+                var isShowAllAll = false;
+
+                var navHtmlAll = `
+                    <div class="group-pagination">
+                        <button id="btn-prev-group-all" class="group-btn">&laquo; Starsze</button>
+                        <span id="group-display-all" class="group-info"></span>
+                        <button id="btn-next-group-all" class="group-btn">Nowsze &raquo;</button>
+                        <button id="btn-toggle-all-all" class="group-btn secondary">Pokaż wszystko</button>
+                    </div>
+                `;
+                $('#WorkHoursTable_wrapper').prepend(navHtmlAll);
+
+                $.fn.dataTable.ext.search.push(
+                    function(settings, data, dataIndex) {
+                        if (settings.nTable.id !== 'WorkHoursTable') return true;
+                        if (isShowAllAll) return true;
+                        return data[0] === allGroupsAll[currentGroupIndexAll];
+                    }
+                );
+
+                function updateGroupViewAll() {
+                    if (isShowAllAll) {
+                        $('#group-display-all').text("Wszystkie tygodnie");
+                        $('#btn-prev-group-all').prop('disabled', true);
+                        $('#btn-next-group-all').prop('disabled', true);
+                        $('#btn-toggle-all-all').text("Pokaż jeden tydzień");
+                    } else {
+                        $('#group-display-all').text(allGroupsAll[currentGroupIndexAll]);
+                        $('#btn-prev-group-all').prop('disabled', currentGroupIndexAll >= allGroupsAll.length - 1);
+                        $('#btn-next-group-all').prop('disabled', currentGroupIndexAll <= 0);
+                        $('#btn-toggle-all-all').text("Pokaż wszystko");
+                    }
+                    tableAll.draw();
+                }
+
+                $('#btn-toggle-all-all').click(function() { isShowAllAll = !isShowAllAll; updateGroupViewAll(); });
+                $('#btn-prev-group-all').click(function() { if (!isShowAllAll && currentGroupIndexAll < allGroupsAll.length - 1) { currentGroupIndexAll++; updateGroupViewAll(); } });
+                $('#btn-next-group-all').click(function() { if (!isShowAllAll && currentGroupIndexAll > 0) { currentGroupIndexAll--; updateGroupViewAll(); } });
+
+                updateGroupViewAll();
+            }
+
+
+            var usersTable = $('#myUsersTable').DataTable(commonSettings);
+            $('#statusFilter').on('change', function() {
+                usersTable.column(6).search($(this).val()).draw();
+            });
+
+            $('#projectsTable').DataTable(getSettings("Szukaj projektu:"));
+            $('#workTypesTable').DataTable(getSettings("Szukaj typu pracy:"));
+            $('#myDepartmentsTable').DataTable(getSettings("Szukaj działu:"));
+            $('#myPositionsTable').DataTable(getSettings("Szukaj stanowiska:"));
+            $('#myRolesTable').DataTable(getSettings("Szukaj roli:"));
+            $('#approvalsTable').DataTable(getSettings("Szukaj pracownika:"));
+            $('#PaymentTypesTable').DataTable(getSettings("Szukaj typu wypłaty:"));
+
+            $('#statsTable').DataTable({
+                "paging": false,
+                "searching": false,
+                "ordering": false,
+                "info": false,
+                "dom": 't',
+                "language": { "emptyTable": "Brak danych statystycznych" }
+            });
+
+            $('.dt-project-users').DataTable({
+                "dom": 'ftp',
+                "pageLength": 5,
+                "language": commonSettings.language,
+                "width": "100%"
+            });
+
+            $('.dt-current-members').DataTable({
+                "paging": false,
+                "searching": false,
+                "info": false,
+                "dom": 't',
+                "language": { "emptyTable": "Brak członków zespołu" },
+                "width": "100%"
+            });
+
+            $('.dt-approvals').DataTable({
+                "dom": 'tp',
+                "pageLength": 10,
+                "language": {
+                    "emptyTable": "Brak godzin wymagających zatwierdzenia",
+                    "paginate": { "first": "<<", "previous": "<", "next": ">", "last": ">>" }
+                },
+                "width": "100%"
+            });
+
+            $('.tablinks').on('click', function() {
+                setTimeout(function() {
+                    $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+                }, 100);
+            });
+        });
+    </script>
+</div>

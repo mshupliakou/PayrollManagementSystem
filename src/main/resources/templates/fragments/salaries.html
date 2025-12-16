@@ -1,0 +1,187 @@
+<div th:fragment="managementSalaries" class="management-flex-container" xmlns:sec="http://www.w3.org/1999/xhtml">
+    <div id="Salaries" class="tabcontent" sec:authorize="hasAuthority('ROLE_ACCOUNTANT')">
+        <div class="management-content">
+            <div class="divider"></div>
+
+
+
+            <h2 id="section-payment_types">Zarządzanie typami wypłat</h2>
+
+            <h3>Dodać nowy typ</h3>
+
+            <button type="button" class="btn" onclick="openModal('createPaymentTypeModal')">Dodaj typ</button>
+
+
+
+            <div id="createPaymentTypeModal" class="modal">
+
+                <div class="modal-content modal-form">
+
+                    <span class="close" onclick="closeModal('createPaymentTypeModal')">&times;</span>
+
+                    <h4>Dodaj Nowe Stanowisko</h4>
+
+                    <form th:action="@{accountant/payments/types/create}" method="post" th:object="${newPaymentTypeForm}">
+
+                        <label>Nazwa:</label>
+
+                        <input type="text" th:field="*{name}" required>
+
+                        <label>Opis:</label>
+
+                        <input type="text" th:field="*{description}" >
+
+                        <button type="submit" class="btn">Utwórz</button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+
+
+            <br><br><br>
+
+            <h3>Wszystkie typy wypłaty</h3>
+
+            <table id="PaymentTypesTable" class="table-block display" style="width:100%">
+
+                <thead>
+
+                <tr>
+
+                    <th>ID</th><th>Nazwa Wypłaty</th><th>Opis</th><th>Akcje</th>
+
+                </tr>
+
+                </thead>
+
+                <tbody>
+
+                <tr th:each="pos : ${paymentTypesList}">
+
+                    <td th:text="${pos.id}"></td>
+
+                    <td th:text="${pos.name}"></td> <td th:text="${pos.description}"></td>
+
+                    <td>
+
+                        <button class="btn" type="button" th:onclick="'openModal(\'editPayTypeModel-' + ${pos.id} + '\')'">Edytuj</button>
+
+                        <div th:id="'editPayTypeModel-' + ${pos.id}" class="modal">
+
+                            <div class="modal-content modal-form">
+
+                                <span class="close" th:onclick="'closeModal(\'editPayTypeModel-' + ${pos.id} + '\')'">&times;</span>
+
+                                <h4>Edycja typu wypłaty:</h4>
+
+                                <form th:action="@{/accountant/payments/types/edit}" method="post">
+
+                                    <input type="hidden" name="id" th:value="${pos.id}" />
+
+                                    <label>Nazwa Typu Wypłaty:</label>
+
+                                    <input type="text" name="name" th:value="${pos.name}" required>
+
+                                    <label>Opis:</label>
+
+                                    <input type="text" name="description" th:value="${pos.description}">
+
+                                    <button type="submit" class="btn">Zatwierdź zmiany</button>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                        <button class="btn-danger" type="button" th:onclick="'openModal(\'deletePayTypeModel-' + ${pos.id} + '\')'">Usuń</button>
+
+                        <div th:id="'deletePayTypeModel-' + ${pos.id}" class="modal">
+
+                            <div class="modal-content modal-form">
+
+                                <span class="close" th:onclick="'closeModal(\'deletePayTypeModel-' + ${pos.id} + '\')'">&times;</span>
+
+                                <h4>Czy na pewno chcesz usunąć:</h4>
+
+                                <h4 th:text="${pos.name}" style="font-weight: bold;"></h4>
+
+                                <form th:action="@{/accountant/payments/types/delete}" method="post">
+
+                                    <input type="hidden" name="id" th:value="${pos.id}" />
+
+                                    <button type="submit" class="btn-danger">Usuń</button>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                </tbody>
+
+            </table>
+
+
+
+            <div class="divider"></div>
+
+            <h2 id = "section-all_hours">Wszystkie godziny pracy</h2>
+            <h3>Lista wszystkich godzin pracy</h3>
+            <table id="WorkHoursTable" class="table-block display" style="width:100%">
+                <thead>
+                <tr>
+                    <th>Grupa</th>
+                    <th>Imię</th>     <th>Nazwisko</th> <th>Data</th>
+                    <th>Dzień</th>
+                    <th>Godziny</th>
+                    <th>Czas pracy</th>
+                    <th>Projekt</th>
+                    <th>Typ</th>
+                    <th>Komentarz</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="record : ${WorkHoursList}">
+                    <td th:text="${record.weekRange}"></td>
+
+                    <td th:text="${record.user.name}"></td>
+                    <td th:text="${record.user.lastname}"></td>
+                    <td th:text="${record.date}"></td>
+                    <td style="text-transform: capitalize;" th:text="${record.dayOfWeek}"></td>
+                    <td th:text="${record.startTime} + ' - ' + ${record.endTime}"></td>
+                    <td th:text="${record.workedTime}" style="font-weight: bold;"></td>
+                    <td th:text="${record.project != null ? record.project.name : '-'}"></td>
+                    <td th:text="${record.workType.name}"></td>
+                    <td th:text="${record.comment}"></td>
+                    <td>
+                        <span th:if="${record.approved}" style="color: green;">Zatwierdzone</span>
+                        <span th:unless="${record.approved}" style="color: orange;">Oczekuje</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="salariesSidebar" class="management-sidebar">
+
+        <h4>Nawigacja</h4>
+
+        <ul>
+
+            <li><a href="#section-payment_types">Typy wypłaty</a></li>
+            <li><a href="#section-all_hours">Wszystkie godziny</a></li>
+
+        </ul>
+
+    </div>
+</div>
