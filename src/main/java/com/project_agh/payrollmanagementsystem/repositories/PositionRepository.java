@@ -20,6 +20,8 @@ public interface PositionRepository {
      * @return a {@link List} containing all {@link Position} entities
      */
     List<Position> findAll();
-
+    void deletePosition(Long id);
     void createPosition(String position_name, String position_desc);
+
+    void editPosition(Long id, String name, String description);
 }
