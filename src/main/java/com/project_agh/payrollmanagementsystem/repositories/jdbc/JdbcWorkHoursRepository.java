@@ -25,9 +25,14 @@ public class JdbcWorkHoursRepository implements WorkHoursRepository {
 
     // --- SQL QUERIES ---
 
-    // 1. Basic Find All (Using View)
+    // 1. Basic Find All (Using View) --
     private static final String FIND_ALL_FROM_VIEW_SQL =
-            "SELECT * FROM widok_godzin_pracy ORDER BY data DESC";
+            "SELECT r.*, " +
+                    "       p.imie AS pracownik_imie, " +
+                    "       p.nazwisko AS pracownik_nazwisko " +
+                    "FROM widok_godzin_pracy r " +
+                    "JOIN pracownik p ON r.id_pracownik = p.id_pracownik " +
+                    "ORDER BY r.data DESC";
 
     // 2. Accountant Query (With Names & Details)
     // NOTE: This queries the VIEW 'widok_godzin_pracy' 'r' and JOINS 'pracownik' 'p'.

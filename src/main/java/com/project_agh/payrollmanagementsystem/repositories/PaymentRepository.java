@@ -10,9 +10,7 @@ public interface PaymentRepository {
     List<Payment> findAll();
 
     void createPayment();
-
     void deletePayment(Long id);
-
     void editPayment();
     void updateStatus(Long id, Long statusId);
 }
