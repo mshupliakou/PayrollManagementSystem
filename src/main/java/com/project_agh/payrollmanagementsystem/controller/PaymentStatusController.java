@@ -1,7 +1,9 @@
 package com.project_agh.payrollmanagementsystem.controller;
 
 
+import com.project_agh.payrollmanagementsystem.dtos.PaymentStatusDto;
 import com.project_agh.payrollmanagementsystem.dtos.PaymentTypeDto;
+import com.project_agh.payrollmanagementsystem.repositories.PaymentStatusRepository;
 import com.project_agh.payrollmanagementsystem.repositories.PaymentTypeRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,25 +15,26 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("accountant/payments/status")
+@RequestMapping("accountant/payments/statuses")
 @PreAuthorize("hasRole('ROLE_ACCOUNTANT')")
 public class PaymentStatusController {
 
-    private final PaymentTypeRepository paymentTypeRepository;
-    public PaymentTypeController(PaymentTypeRepository paymentTypeRepository) {
-        this.paymentTypeRepository = paymentTypeRepository;
+    private final PaymentStatusRepository paymentStatusRepository;
+
+    public PaymentStatusController(PaymentStatusRepository paymentStatusRepository) {
+        this.paymentStatusRepository = paymentStatusRepository;
     }
 
     @PostMapping("/create")
-    public String createPaymentType(
-            @ModelAttribute PaymentTypeDto paymetTypeDto,
+    public String createPaymentStatus(
+            @ModelAttribute PaymentStatusDto paymentStatusDto,
             RedirectAttributes redirectAttributes,
             HttpServletRequest request) {
 
         try {
-            paymentTypeRepository.createPaymentType(
-                    paymetTypeDto.getName(),
-                    paymetTypeDto.getDescription()
+            paymentStatusRepository.createPaymentStatus(
+                    paymentStatusDto.getName(),
+                    paymentStatusDto.getDescription()
             );
 
             redirectAttributes.addFlashAttribute(
@@ -49,19 +52,19 @@ public class PaymentStatusController {
 
 
 
-        return "redirect:/dashboard?tab=payment_types";
+        return "redirect:/dashboard?tab=statuses";
     }
 
 
     @PostMapping("/delete")
-    public String deletePaymentType(
-            @ModelAttribute PaymentTypeDto paymetTypeDto,
+    public String deletePaymentStatus(
+            @ModelAttribute PaymentStatusDto paymentStatusDto,
             RedirectAttributes redirectAttributes,
             HttpServletRequest request) {
 
         try {
-            paymentTypeRepository.deletePaymentType(
-                    paymetTypeDto.getId()
+            paymentStatusRepository.deletePaymentStatus(
+                    paymentStatusDto.getId()
             );
 
             redirectAttributes.addFlashAttribute(
@@ -79,11 +82,11 @@ public class PaymentStatusController {
 
 
 
-        return "redirect:/dashboard?tab=payment_types";
+        return "redirect:/dashboard?tab=statuses";
     }
 
     @PostMapping("/edit")
-    public String editPaymentType(
+    public String editPaymentStatus(
             @RequestParam("id") Long id,
             @RequestParam("name") String name,
             @RequestParam("description") String description,
@@ -91,7 +94,7 @@ public class PaymentStatusController {
 
         try {
 
-            paymentTypeRepository.editPaymentType(
+            paymentStatusRepository.editPaymentStatus(
                     id, name,  description
             );
 
@@ -103,6 +106,6 @@ public class PaymentStatusController {
             redirectAttributes.addFlashAttribute("errorMessage", "Error editing role: " + e.getMessage());
         }
 
-        return "redirect:/dashboard?tab=payment_types";
+        return "redirect:/dashboard?tab=statuses";
     }
 }
