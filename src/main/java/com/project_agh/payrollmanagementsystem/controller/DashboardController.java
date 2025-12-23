@@ -28,6 +28,9 @@ public class DashboardController {
     private final WorkHoursRepository workHoursRepository;
     private final EmployeeStatsRepository employeeStatsRepository;
     private final PaymentTypeRepository paymentTypeRepository;
+    private final PaymentStatusRepository paymentStatusRepository;
+    private final SalaryChangeHistoryRepository salaryChangeHistoryRepository;
+    private final PaymentRepository paymentRepository;
 
 
     public DashboardController(
@@ -39,7 +42,8 @@ public class DashboardController {
             WorkTypeRepository workTypeRepository,
             WorkHoursRepository workHoursRepository,
             EmployeeStatsRepository employeeStatsRepository,
-            PaymentTypeRepository paymentTypeRepository
+            PaymentTypeRepository paymentTypeRepository,
+            PaymentStatusRepository paymentStatusRepository, SalaryChangeHistoryRepository salaryChangeHistoryRepository, PaymentRepository paymentRepository
     ) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -50,6 +54,9 @@ public class DashboardController {
         this.workHoursRepository = workHoursRepository;
         this.employeeStatsRepository = employeeStatsRepository;
         this.paymentTypeRepository = paymentTypeRepository;
+        this.paymentStatusRepository = paymentStatusRepository;
+        this.salaryChangeHistoryRepository = salaryChangeHistoryRepository;
+        this.paymentRepository = paymentRepository;
     }
 
     @GetMapping("/dashboard")
@@ -83,19 +90,19 @@ public class DashboardController {
         model.addAttribute("weekEnd", endOfWeek);
 
 
-        List<WorkHours> weeklyRecords = workHoursRepository.findByUserIdAndDateRange(user.getId(), startOfWeek, endOfWeek);
+        List<WorkHours> statsRecords = workHoursRepository.findByUserIdAndDateRange(user.getId(), startOfWeek, endOfWeek);
+        List<WorkHours> allHistoryRecords = workHoursRepository.findByUserId(user.getId());
 
-
-        model.addAttribute("myWorkHoursList", weeklyRecords);
+        model.addAttribute("myWorkHoursList", allHistoryRecords);
 
 
         double currentWeekMinutes = 0;
-        long daysWorkedCount = weeklyRecords.stream()
+        long daysWorkedCount = statsRecords.stream()
                 .map(WorkHours::getDate)
                 .distinct()
                 .count();
 
-        for (WorkHours record : weeklyRecords) {
+        for (WorkHours record : statsRecords) {
             if (record.getStartTime() != null && record.getEndTime() != null) {
                 currentWeekMinutes += java.time.Duration.between(record.getStartTime(), record.getEndTime()).toMinutes();
             }
@@ -120,6 +127,7 @@ public class DashboardController {
         model.addAttribute("newPaymentTypeForm", new PaymentTypeDto());
         model.addAttribute("allUsers", Collections.emptyList());
         model.addAttribute("notApprovedUsers", Collections.emptyList());
+        model.addAttribute("newPaymentStatusForm", new PaymentStatusDto());
 
         if (user.getRole().getName().equals("ADMIN")) {
             model.addAttribute("newUserInProjectForm", new ProjectUserDto());
@@ -133,13 +141,18 @@ public class DashboardController {
             model.addAttribute("newRoleForm", new RoleDto());
             model.addAttribute("newProjectForm", new ProjectDto());
             model.addAttribute("newWorkTypeForm", new WorkTypeDto());
+
         }
 
         if (user.getRole().getName().equals("ACCOUNTANT")) {
-            List<WorkHours> weeklyRecordsAllUsers = workHoursRepository.findByDateRange(startOfWeek, endOfWeek);
-            model.addAttribute("WorkHoursList", weeklyRecordsAllUsers);
-
+            List<WorkHours> allUsersRecords = workHoursRepository.findAll();
+            model.addAttribute("WorkHoursList", allUsersRecords);
+            model.addAttribute("newPaymentStatusForm", new PaymentStatusDto());
             model.addAttribute("paymentTypesList", paymentTypeRepository.findAll());
+            model.addAttribute("paymentStatusesList", paymentStatusRepository.findAll());
+            model.addAttribute("salaryChangeHistoryList", salaryChangeHistoryRepository.findAll());
+            model.addAttribute("paymentStatusesList", paymentStatusRepository.findAll());
+            model.addAttribute("paymentHistoryList", paymentRepository.findAll());
         }
 
 
