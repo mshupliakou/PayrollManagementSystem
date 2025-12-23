@@ -18,6 +18,7 @@ import java.util.Optional;
  */
 public interface UserRepository {
 
+    Optional<User> findById(long userId) ;
     /**
      * Retrieves a user by their unique email address.
      * <p>
