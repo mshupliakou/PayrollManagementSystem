@@ -3,7 +3,7 @@
         <div class="management-content">
 
 
-            <h2 id="section-payouts">Lista Do Wypłaty</h2>
+            <h2 id="section-payouts">Lista Do Wypłaty (Zeszły miesiąc)</h2>
 
             <div id="bulkActionsBar" style="display:none; background: #e8f5e9; padding: 15px; border: 1px solid #4caf50; border-radius: 5px; margin-bottom: 15px; align-items: center; gap: 15px;">
                 <span style="font-weight: bold;">Zaznaczono: <span id="selectedCount">0</span></span>
@@ -77,6 +77,79 @@
 
             <br><br>
             <div class="divider"></div>
+
+
+            </table>
+
+            <br><br>
+
+            <h2 id="section-payment-history-full">Historia wszystkich wypłat</h2>
+
+            <table id="AllPaymentsTable" class="table-block display" style="width:100%">
+                <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Imię</th>
+                    <th>Nazwisko</th>
+                    <th>Typ</th>
+                    <th>Kwota</th>
+                    <th>Opis</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="pay : ${paymentHistoryList}">
+                    <td th:text="${pay.date}"></td>
+                    <td th:text="${pay.user.name}"></td>
+                    <td th:text="${pay.user.lastname}"></td>
+                    <td th:text="${pay.paymentType.name}"></td>
+                    <td th:text="${pay.amount} + ' PLN'" style="font-weight: bold;"></td>
+                    <td th:text="${pay.description}"></td>
+                    <td>
+                        <span th:text="${pay.paymentStatus.name}"
+                              th:style="${pay.paymentStatus.name == 'Zatwierdzone' ? 'color:green' : (pay.paymentStatus.name == 'Oczekuje' ? 'color:orange' : '')}">
+                        </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <br><br>
+            <div class="divider"></div>
+
+            <h2 id="section-salary-report">Raport Stawek Godzinowych</h2>
+
+            <div class="group-controls" style="margin-bottom: 10px;">
+                <span>Grupuj według: </span>
+                <button type="button" class="group-btn" id="group-by-dept">Dział (Departament)</button>
+                <button type="button" class="group-btn secondary" id="group-by-pos">Stanowisko (Specjalność)</button>
+            </div>
+
+            <table id="salaryOverviewTable" class="table-block display" style="width:100%">
+                <thead>
+                <tr>
+                    <th>Dział</th>      <th>Stanowisko</th> <th>Imię</th>
+                    <th>Nazwisko</th>
+                    <th>Email</th>
+                    <th>Stawka (PLN/h)</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${allUsers}">
+                    <td th:text="${user.department != null ? user.department.name : 'Brak działu'}"></td>
+                    <td th:text="${user.position != null ? user.position.name : 'Brak stanowiska'}"></td>
+
+                    <td th:text="${user.name}"></td>
+                    <td th:text="${user.lastname}"></td>
+                    <td th:text="${user.email}"></td>
+                    <td th:text="${user.salary_pln_h} + ' PLN'" style="font-weight: bold; color: #2c3e50;"></td>
+                </tr>
+                </tbody>
+            </table>
+            <br><br>
+
+            <br><br>
+            <div class="divider"></div>
+
             <h2 id="section-payment_types">Zarządzanie typami wypłat</h2>
 
             <h3>Dodać nowy typ</h3>
@@ -396,18 +469,15 @@
     </div>
 
     <div id="salariesSidebar" class="management-sidebar">
-
         <h4>Nawigacja</h4>
-
         <ul>
-
             <li><a href="#section-payouts">Do wypłaty(miesiąc)</a></li>
+            <li><a href="#section-payment-history-full">Historia wypłat</a></li>
+            <li><a href="#section-salary-report">Raport Stawek</a></li>
             <li><a href="#section-payment_types">Typy wypłaty</a></li>
             <li><a href="#section-payment_statuses">Statusy wypłaty</a></li>
             <li><a href="#section-payment_history_change_salary">Zmiany wynagrodzeń</a></li>
             <li><a href="#section-all_hours">Wszystkie godziny</a></li>
-
         </ul>
-
     </div>
 </div>

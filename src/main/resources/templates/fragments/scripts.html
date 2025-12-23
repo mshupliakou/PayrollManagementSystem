@@ -253,6 +253,63 @@
                     updateBulkActions();
                 });
             }
+
+            // ============================================================
+            // TABELA RAPORTU WYNAGRODZEŃ (ADMIN)
+            // ============================================================
+            if ($('#salaryOverviewTable').length > 0) {
+                var salaryTable = $('#salaryOverviewTable').DataTable({
+                    dom: 'Bfrtip',
+                    buttons: [
+                        { extend: 'excelHtml5', className: 'btn', text: 'Eksportuj do Excel' },
+                        { extend: 'print', className: 'btn', text: 'Drukuj' }
+                    ],
+                    paging: false, // Показываем всех на одной странице
+                    columnDefs: [
+                        { "visible": false, "targets": [0, 1] } // Скрываем колонки Dział(0) и Stanowisko(1)
+                    ],
+                    order: [[0, 'asc']], // Изначальная сортировка по Отделу
+                    rowGroup: {
+                        dataSrc: 0, // Группируем по колонке 0 (Dział)
+                        startRender: function (rows, group) {
+                            // Подсчет средней ставки в группе (опционально)
+                            var avgSalary = rows
+                                .data()
+                                .pluck(5) // Берем колонку 5 (Stawka)
+                                .map(function(val) {
+                                    return parseFloat(val.replace(' PLN', '')) || 0;
+                                })
+                                .average();
+
+                            return $('<tr/>').append('<td colspan="4" style="background-color: #d1ecf1; color: #0c5460; font-weight: bold;">' +
+                                group + ' (Pracowników: ' + rows.count() + ') | Średnia stawka: ' + avgSalary.toFixed(2) + ' PLN' +
+                                '</td>');
+                        }
+                    }
+                });
+
+                // Логика переключения группировки кнопками
+                $('#group-by-dept').on('click', function() {
+                    salaryTable.rowGroup().dataSrc(0); // Группировка по Dział
+                    salaryTable.order([0, 'asc']).draw();
+
+                    // Обновляем стили кнопок
+                    $(this).removeClass('secondary').addClass('group-btn');
+                    $('#group-by-pos').removeClass('group-btn').addClass('secondary');
+                });
+
+                $('#group-by-pos').on('click', function() {
+                    salaryTable.rowGroup().dataSrc(1); // Группировка по Stanowisko
+                    salaryTable.order([1, 'asc']).draw();
+
+                    // Обновляем стили кнопок
+                    $(this).removeClass('secondary').addClass('group-btn');
+                    $('#group-by-dept').removeClass('group-btn').addClass('secondary');
+                });
+            }
+
+
+
             // ============================================================
             // 2. TABELA KSIĘGOWEGO (All Work Hours)
             // ============================================================
@@ -361,6 +418,8 @@
             $('#PaymentTypesTable').DataTable(getSettings("Szukaj typu wypłaty:"));
             $('#PaymentStatusesTable').DataTable(getSettings("Szukaj statusu wypłaty:"));
             $('#SalaryChangeHistoryTable').DataTable(getSettings("Szukaj w historii zmian:"));
+            $('#AllPaymentsTable').DataTable(getSettings("Szukaj w historii wypłat:"));
+
 
             $('#statsTable').DataTable({
                 "paging": false, "searching": false, "ordering": false,
