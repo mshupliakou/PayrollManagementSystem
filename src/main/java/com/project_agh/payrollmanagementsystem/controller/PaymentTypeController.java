@@ -49,7 +49,7 @@ public class PaymentTypeController {
 
 
 
-        return "redirect:/dashboard?tab=payment_types";
+        return "redirect:/dashboard?tab=types";
     }
 
 
@@ -79,7 +79,7 @@ public class PaymentTypeController {
 
 
 
-        return "redirect:/dashboard?tab=payment_types";
+        return "redirect:/dashboard?tab=types";
     }
 
     @PostMapping("/edit")
@@ -103,6 +103,6 @@ public class PaymentTypeController {
             redirectAttributes.addFlashAttribute("errorMessage", "Error editing role: " + e.getMessage());
         }
 
-        return "redirect:/dashboard?tab=payment_types";
+        return "redirect:/dashboard?tab=types";
     }
 }
