@@ -2,6 +2,7 @@ package com.project_agh.payrollmanagementsystem.controller;
 
 import com.project_agh.payrollmanagementsystem.dtos.CreateUserDto;
 import com.project_agh.payrollmanagementsystem.entities.User;
+import com.project_agh.payrollmanagementsystem.repositories.SalaryChangeHistoryRepository;
 import com.project_agh.payrollmanagementsystem.repositories.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +18,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Controller responsible for administrative operations on user accounts.
@@ -46,6 +49,7 @@ public class UserManagementController {
         return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
     }
 
+    private final SalaryChangeHistoryRepository salaryChangeHistoryRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -55,7 +59,8 @@ public class UserManagementController {
      * @param userRepository repository used for performing user-related database operations
      * @param passwordEncoder encoder used for hashing user passwords
      */
-    public UserManagementController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserManagementController(SalaryChangeHistoryRepository salaryChangeHistoryRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.salaryChangeHistoryRepository = salaryChangeHistoryRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -193,12 +198,23 @@ public class UserManagementController {
 
             if (password != null && !password.trim().isEmpty()) {
                 String hashedPassword = passwordEncoder.encode(password);
-
+                Optional<User> user = userRepository.findById(id);
+                if(user.isPresent()) {
+                    if(!Objects.equals(user.get().getSalary_pln_h(), salary)){
+                        salaryChangeHistoryRepository.changeSalary(id, user.get().getSalary_pln_h(),salary, LocalDate.now());
+                    }
+                }
                 userRepository.editUserWithPassword(
                         id, capitalize(name), capitalize(lastname), id_position, id_role, id_department,
                         salary, email.toLowerCase(), hashedPassword, hireDate, terminationDate, active
                 );
             } else {
+                Optional<User> user = userRepository.findById(id);
+                if(user.isPresent()) {
+                    if(!Objects.equals(user.get().getSalary_pln_h(), salary)){
+                        salaryChangeHistoryRepository.changeSalary(id, user.get().getSalary_pln_h(),salary, LocalDate.now());
+                    }
+                }
                 userRepository.editUser(
                         id, capitalize(name), capitalize(lastname), id_position, id_role, id_department,
                         salary, email.toLowerCase(), hireDate, terminationDate, active
